@@ -6,12 +6,13 @@ import AboutPage from "./pages/about";
 import Header from "./components/header/header";
 
 function App() {
+  
   return(
     <Router>
       <Header />
       <Routes>
         <Route index element={<HomePage />} />
-        <Route path="/details" element={<DetailsPage/>}/>
+        <Route path="/details/:id" element={<DetailsPage/>}/>
         <Route path="/about" element={<AboutPage/>}/>
       </Routes>
     </Router>

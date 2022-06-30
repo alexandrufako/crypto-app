@@ -7,4 +7,14 @@ const getMarkets = async (page, perPage) => {
     return data;
 }
 
-export { getMarkets };
+const getCoinDetails = async (id) => {
+    const res = await fetch(`${baseUrl}/coins/${id}`);
+    if(res.status === 200){
+        const data = await res.json();
+        return data;
+    }
+    throw Error("Something went wrong, please try again later.")
+
+}
+
+export { getMarkets, getCoinDetails };

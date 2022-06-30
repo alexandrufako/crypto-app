@@ -1,13 +1,20 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { getMarkets } from "../services/api";
 import Table from "../components/table/table";
 import CustomPagination from "../components/pagination/pagination";
 import Wait from "../components/wait/wait";
+import { perPageNo } from "../services/utils";
+import { useNavigate } from "react-router-dom";
+import { Ctx } from "../context/context";
 
 const HomePage = () => {
+
   const [coinData, setCoinData] = useState();
-  const [pageNo, setPageNo] = useState(1);
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+
+  const context = useContext(Ctx);
 
   const tableHeaderData = [
     {
@@ -45,25 +52,34 @@ const HomePage = () => {
   useEffect(() => {
     const getData = async () => {
       setLoading(true);
-      const res = await getMarkets(pageNo, 10);
+      const res = await getMarkets(context.globalState.pageNo, perPageNo);
       setCoinData(res);
       setLoading(false);
     };
     getData();
-  }, [pageNo]);
+  }, [context.globalState.pageNo]);
 
   const handleNextPage = () => {
-    setPageNo((state) => state + 1);
+    context.setGlobalState((state) => {
+      const temp = {...state, pageNo: state.pageNo + 1}
+      return temp
+    });
   };
 
   const handlePrevPage = () => {
-    setPageNo((state) => {
-      if (state > 1) {
-        return state - 1;
+    
+    context.setGlobalState((state) => {
+      if (state.pageNo > 1) {
+        const temp = {...state, pageNo: state.pageNo - 1}
+        return temp
       }
       return state;
     });
   };
+
+  const tableRowOnClick = (selectedObj) => {
+    navigate(`/details/${selectedObj.id}`)
+  }
 
   return (
     <div className="m-5">
@@ -71,6 +87,7 @@ const HomePage = () => {
         <Table
           header={tableHeaderData}
           body={coinData}
+          handleRowClick={tableRowOnClick}
           className="home-table"
         />
       )}
@@ -78,7 +95,7 @@ const HomePage = () => {
         <CustomPagination
           handleNext={handleNextPage}
           handlePrev={handlePrevPage}
-          currentPageNo={pageNo}
+          currentPageNo={context.globalState.pageNo}
         />
       </div>
      {loading && <Wait fixed/>}

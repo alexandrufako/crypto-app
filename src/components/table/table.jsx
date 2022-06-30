@@ -1,28 +1,53 @@
-import { Table as TableBS } from "react-bootstrap";
+import { Table as TableBS } from 'react-bootstrap';
+import Image from '../image/image';
+import { objDeepParse } from '../../services/utils';
 
-const Table = ({ header, body, className }) => {
+const Table = ({ header, body, className, handleRowClick }) => {
 
-  console.log({header, body})
+  const buildCell = (currentHeaderObj, obj) => {
+    switch (currentHeaderObj.type) {
+      case 'img':
+        return <Image src={obj[currentHeaderObj.objKey]} alt={obj.id} width={60} />;
+      case 'string':
+        return obj[currentHeaderObj.objKey];
+      case 'object':
+        return objDeepParse(currentHeaderObj.objKey, obj);
+      default:
+        return obj[currentHeaderObj.objKey];
+    }
+  };
+
+  
 
   const getTableCells = (obj) => {
-    return header.map(h => {
-      return <td key={h.objKey}>{h.type === "img" ? <img src={obj[h.objKey]} alt={obj.id} width={60}/> : obj[h.objKey]}</td>
-    })
-  }
+    return header.map((h) => {
+      return <td key={h.objKey}>{buildCell(h, obj)}</td>;
+    });
+  };
 
   return (
     <TableBS striped bordered hover className={className}>
-      <thead style={{whiteSpace: "nowrap"}}>
+      <thead style={{ whiteSpace: 'nowrap' }}>
         <tr>
-          {header.map((h) => <th key={h.objKey} id={h.objKey}>{h.label}</th>)}
+          {header.map((h) => (
+            <th key={h.objKey} id={h.objKey}>
+              {h.label}
+            </th>
+          ))}
         </tr>
       </thead>
       <tbody>
-        {
-          body.map(obj => {
-            return <tr key={obj.id}>{getTableCells(obj)}</tr>
-          })
-        }
+        {body.map((obj) => {
+          return (
+            <tr
+              key={obj.id}
+              onClick={() => handleRowClick(obj)}
+              style={{ cursor: 'pointer' }}
+            >
+              {getTableCells(obj)}
+            </tr>
+          );
+        })}
       </tbody>
     </TableBS>
   );
